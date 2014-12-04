@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["foxnewsnetwork@gmail.com"]
   spec.summary       = %q{Functional programming with composable, applicable, and arrowable functions.}
   spec.description   = %q{Introduces a Arrows::Proc class which allows for piping processes.}
-  spec.homepage      = ""
+  spec.homepage      = "github.com/foxnewsnetwork/arrows"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
