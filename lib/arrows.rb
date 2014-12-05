@@ -2,6 +2,11 @@ require "arrows/version"
 
 module Arrows
   class << self
+    def concurrent(f,g)
+      Arrows::Proc.new do |*args| 
+        [f[*args.first], g[*args.last]]
+      end
+    end
     def fanout(f,g)
       Arrows::Proc.new { |*args| [f[*args], g[*args]] }
     end
@@ -23,7 +28,9 @@ module Arrows
       x.respond_to?(:call) && x.respond_to?(:arity)
     end
     def wrap_proc(f)
-      Arrows::Proc.new { |*args| f[*args] }
+      Arrows::Proc.new do |*args|
+        f[*args]
+      end
     end
   end
   class Proc < ::Proc
@@ -40,6 +47,11 @@ module Arrows
     # fanout composition
     def /(f)
       Arrows.fanout self, Arrows.lift(f)
+    end
+
+    # concurrent composition
+    def %(f)
+      Arrows.concurrent self, Arrows.lift(f)
     end
   end
 end

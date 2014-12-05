@@ -7,6 +7,7 @@ actually useful set of functional tools for day-to-day Ruby programming
 
 Features:
 
+*note, see spec/arrows/proc_spec.rb to get an idea how to use this junk
 ### Function composition
 
 If given
@@ -16,6 +17,7 @@ Returns
 x -> H -> z
 
 As in we pipe what F poops out into the mouth of G a la Human Centipede
+
 
 ### Applicative composition
 Calls map (in Haskell, they generalize it to fmap) on the data passed in

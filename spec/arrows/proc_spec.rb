@@ -19,12 +19,60 @@ RSpec.describe Arrows::Proc do
     specify { should eq [10, 12, 14] }
   end
 
-  context '+ fanout' do
+  context '/ fanout' do
     let(:times2) { Arrows.lift -> (x) { x * 2 } }
     let(:plus3) { Arrows.lift -> (x) { x + 3 } }
     let(:four) { Arrows.lift 4 }
     let(:six_eight) { four >> times2 / plus3 }
     subject { six_eight.call }
     specify { should eq [8, 7] }
+  end
+
+  context '% concurrent' do
+    let(:times2) { Arrows.lift -> (x) { x * 2 } }
+    let(:plus3) { Arrows.lift -> (x) { x + 3 } }
+    let(:four) { Arrows.lift [4,6] }
+    context 'validity' do
+      subject { times2.call 2 }
+      specify { should eq 4 }
+    end 
+    context 'arity' do
+      let(:par) { times2 % plus3 }
+      subject { par.call 1,2 }
+      specify { should eq [2, 5] }
+    end
+    context 'result' do
+      let(:eight_nine) { four >> times2 % plus3 }
+      subject { eight_nine.call }
+      specify { should eq [8,9] }
+    end
+  end
+
+  context '%/ fanout into concurrent' do
+    let(:add1) { Arrows.lift -> (x) { x + 1 } }
+    let(:add4) { Arrows.lift -> (x) { x + 4 } }
+    let(:two) { Arrows.lift 2 }
+    let(:result) { two >> add1 / add4 >> add1 % add4 }
+    context 'result' do
+      subject { result.call }
+      specify { should eq [4, 10] }
+    end
+  end
+
+  context '>=%/ applicative fanout into concurrent' do
+    let(:add1) { Arrows.lift -> (x) { x + 1 } }
+    let(:add4) { Arrows.lift -> (x) { x + 4 } }
+    let(:twos) { Arrows.lift [2,2,2] }
+    let(:transform) { add1 / add4 >> add1 % add4 }
+    let(:result) { twos >= add1 / add4 >> add1 % add4 }
+    context 'result' do
+      subject { result.call }
+      specify { should eq [[4,10], [4,10], [4,10]] }
+    end
+    context 'similarity' do
+      let(:actual) { twos >= transform }
+      subject { result.call }
+      specify { should eq actual.call }
+    end
   end
 end
