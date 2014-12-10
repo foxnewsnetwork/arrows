@@ -1,7 +1,6 @@
 require "arrows/version"
 
 module Arrows
-  ID = -> (x) { x }
   class Either
     attr_accessor :payload
     def initialize(good_or_evil, payload)
@@ -83,4 +82,5 @@ module Arrows
       Arrows.fork self, f
     end
   end
+  ID = lift -> (x) { x }
 end
