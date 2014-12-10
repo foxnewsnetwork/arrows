@@ -34,8 +34,9 @@ x -> z
 becomes
 x -> [y,z]
 
-### Arrow split
-Not implemented
+### Arrow Fork
+f ^ g produces a proc that takes in a Either, and if either is good, f is evaluated, if either is evil, g is evaluated
+
 
 ## Use Case
 Suppose you're running rails (lol what else is there in ruby?) for some sort of ecommerce app and you have an OfferController that handles inputs from an user who is trying to make an offer on some listing you have. Your controller might look like this:
@@ -93,6 +94,59 @@ class OfferController < ApplicationController
 end
 ```
 That is, offer creation has been reduced back down to a process with distinct steps. 
+
+### Another Example
+Here's an example directly from one of my other applications
+```ruby
+class Apiv1::Contacts::UpdateController < Apiv1::UsersController
+  before_filter :_enforce_correct_user
+  def update
+    _update_process.call
+  end
+  private
+  def _enforce_correct_user
+    unless current_user.admin? || current_user.contacts.include?(_contact)
+      render json: { message: "This isn't your listing" }, status: 401
+    end
+  end
+  def _update_process
+    _user_inputs >> _apply_changes >> _decide_validity >> (_update_valid_data_process ^ _render_failure)
+  end
+  def _update_valid_data_process
+    _save_changes >> _decide_primality >> (_make_primary ^ Arrows::ID) >> _render_success 
+  end
+  def _user_inputs
+    Arrows.lift _contact
+  end
+  def _apply_changes
+    Arrows.lift -> (contact) { contact.tap { |p| p.assign_attributes _contact_params } }
+  end
+  def _decide_validity
+    Arrows.lift -> (contact) { contact.valid? ? Arrows.good(contact) : Arrows.evil(contact) }
+  end
+  def _decide_primality
+    Arrows.lift -> (contact) { _contact_params[:status] == "primary" ? Arrows.good(contact) : Arrows.evil(contact) }
+  end
+  def _render_success
+    Arrows.lift -> (contact) { render json: { contact: contact.to_ember_hash } }
+  end
+  def _save_changes
+    Arrows.lift -> (contact) { contact.tap(&:save!) }
+  end
+  def _make_primary
+    Arrows.lift -> (contact) { contact.tap &:make_primary! }
+  end
+  def _render_failure
+    Arrows.lift -> (contact) { render json: contact.errors.to_h, status: :expectation_failed }
+  end
+  def _contact
+    @contact ||= Apiv1::UserContact.find params[:id]
+  end
+  def _contact_params
+    @contact_params ||= params.require(:contact).permit(:name, :phone, :email, :address, :status)
+  end
+end
+```
 ## Installation
 
 Add this line to your application's Gemfile:
