@@ -42,7 +42,7 @@ RSpec.describe Arrows::Proc do
     end 
     context 'arity' do
       let(:par) { times2 % plus3 }
-      subject { par.call 1,2 }
+      subject { par.call [1,2] }
       specify { should eq [2, 5] }
     end
     context 'result' do
