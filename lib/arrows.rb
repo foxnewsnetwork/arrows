@@ -1,7 +1,22 @@
 require "arrows/version"
 
 module Arrows
+  class Either
+    attr_accessor :payload
+    def initialize(good_or_evil, payload)
+      @good = !!good_or_evil
+      @payload = payload
+    end
+    def good?
+      @good
+    end
+  end
   class << self
+    def fork(f,g)
+      Arrows::Proc.new do |either|
+        either.good? ? f[*either.payload] : g[*either.payload]
+      end
+    end
     def concurrent(f,g)
       Arrows::Proc.new do |*args| 
         [f[*args.first], g[*args.last]]
@@ -16,6 +31,14 @@ module Arrows
     def fmap(xs, f)
       Arrows::Proc.new { |*args| xs[*args].map { |*x| f[*x] }  }
     end
+    def good(x)
+      return x if x.respond_to?(:good?) && x.respond_to?(:payload)
+      Arrows::Either.new true, x
+    end
+    def evil(x)
+      return x if x.respond_to?(:good?) && x.respond_to?(:payload)
+      Arrows::Either.new false, x
+    end 
     def lift(x)
       return x if arrow_like? x
       return wrap_proc x if proc_like? x
@@ -52,6 +75,11 @@ module Arrows
     # concurrent composition
     def %(f)
       Arrows.concurrent self, Arrows.lift(f)
+    end
+
+    # fork composition
+    def ^(f)
+      Arrows.fork self, f
     end
   end
 end

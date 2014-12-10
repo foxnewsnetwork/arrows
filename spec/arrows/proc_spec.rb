@@ -48,6 +48,23 @@ RSpec.describe Arrows::Proc do
     end
   end
 
+  context '^ fork' do
+    let(:times2) { Arrows.lift -> (x) { x * 2 } }
+    let(:plus3) { Arrows.lift -> (x) { x + 3 } }
+    let(:four) { Arrows.lift Arrows.good 4 }
+    let(:eight) { Arrows.lift Arrows.evil 8 }
+    let(:fork_four) { four >> (times2 ^ plus3) }
+    let(:fork_eight) { eight >> (plus3 ^ times2) }
+    context 'good' do
+      subject { fork_four.call }
+      specify { should eq 8 }
+    end
+    context 'evil' do
+      subject { fork_eight.call }
+      specify { should eq 16 }
+    end
+  end
+
   context '%/ fanout into concurrent' do
     let(:add1) { Arrows.lift -> (x) { x + 1 } }
     let(:add4) { Arrows.lift -> (x) { x + 4 } }
