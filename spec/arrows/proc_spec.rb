@@ -1,6 +1,10 @@
 require 'spec_helper'
 
 RSpec.describe Arrows::Proc do
+  context 'ID' do
+    subject { Arrows::ID }
+    specify { should be_a Proc }
+  end
   context '>> composition' do
     let(:times2) { -> (x) { x * 2 } }
     let(:plus3) { -> (x) { x + 3 } }
