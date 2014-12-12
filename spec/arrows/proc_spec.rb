@@ -5,6 +5,14 @@ RSpec.describe Arrows::Proc do
     subject { Arrows::ID }
     specify { should be_a Proc }
   end
+  context 'memoize' do
+    let(:plus_random) { -> (x) { x + rand(9999999999) } }
+    let(:twelve) { Arrows.lift 4 }
+    let(:twenty_two) { (twelve >> plus_random).memoize }
+    subject { twenty_two.call }
+    specify { should eq twenty_two.call }
+  end
+
   context '>> composition' do
     let(:times2) { -> (x) { x * 2 } }
     let(:plus3) { -> (x) { x + 3 } }

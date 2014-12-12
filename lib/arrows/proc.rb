@@ -23,4 +23,10 @@ class Arrows::Proc < Proc
   def ^(f)
     Arrows.fork self, f
   end
+
+  # Returns a memoizing version of this proc
+  def memoize
+    cache = {}
+    Arrows.lift -> (args) { cache.has_key?(args) ? cache[args] : (cache[args] = self[args]) }
+  end
 end
