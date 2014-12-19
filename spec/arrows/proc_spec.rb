@@ -13,6 +13,22 @@ RSpec.describe Arrows::Proc do
     specify { should eq twenty_two.call }
   end
 
+  context 'rescue_from' do
+    let(:times2 ) { Arrows.lift -> (x) { x * 2 } }
+    let(:plus1) { Arrows.lift -> (x) { x == 4 ? raise(StandardError, "error: #{x}") : (x + 1) } }
+    let(:times2_plus1) { times2 >> plus1 }
+    let(:caught_proc) { times2_plus1.rescue_from { |e, x| "Oh look, we caught:#{x}" } }
+    let(:two) { Arrows.lift 2 }
+    let(:five) { two >> caught_proc }
+    let(:three) { Arrows.lift(1) >> caught_proc }
+    subject { five.call }
+    specify { should eq "Oh look, we caught:2" }
+    context 'regular usage' do
+      subject { three.call }
+      specify { should eq 3 }
+    end
+  end
+
   context '>> composition' do
     let(:times2) { -> (x) { x * 2 } }
     let(:plus3) { -> (x) { x + 3 } }

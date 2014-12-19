@@ -37,6 +37,21 @@ x -> [y,z]
 ### Arrow Fork
 f ^ g produces a proc that takes in a Either, and if either is good, f is evaluated, if either is evil, g is evaluated
 
+## Memoization
+```ruby
+@some_process = Arrows.lift -> (a) { a }
+@memoized_process = @some_process.memoize
+```
+
+## Catching errors
+```ruby
+@times_two = Arrows.lift -> (x) { x * 2 }
+@plus_one = Arrows.lift -> (x) { x == 4 ? raise(SomeError, "error: #{x}") : (x + 1) }
+@times_two_plus_one = @times_two >> @plus_one
+@caught_process = @times_two_plus_one.rescue_from(SomeError) { |error, arg| "we fucked up on: #{arg}" }
+@caught_process.call 1 # 3
+@caught_process.call 2 # we fucked up on: 2
+```
 
 ## Use Case
 Suppose you're running rails (lol what else is there in ruby?) for some sort of ecommerce app and you have an OfferController that handles inputs from an user who is trying to make an offer on some listing you have. Your controller might look like this:

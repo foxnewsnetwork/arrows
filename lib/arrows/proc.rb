@@ -29,4 +29,15 @@ class Arrows::Proc < Proc
     cache = {}
     Arrows.lift -> (args) { cache.has_key?(args) ? cache[args] : (cache[args] = self[args]) }
   end
+
+  # rescues errors from procs
+  def rescue_from(error_klass=StandardError, &block)
+    Arrows.lift -> (args) {
+      begin
+        self[args]
+      rescue error_klass => e
+        yield e, args
+      end
+    }
+  end
 end
