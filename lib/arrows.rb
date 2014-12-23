@@ -57,4 +57,5 @@ module Arrows
   ID = lift -> (x) { x }
   Good = lift -> (x) { good x }
   Evil = lift -> (x) { evil x }
+  Die = lift -> (x) { throw x }
 end
