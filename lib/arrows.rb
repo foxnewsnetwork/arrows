@@ -37,7 +37,13 @@ module Arrows
       Arrows::Proc.new { |args| x }
     end
     def arrow_like?(x)
-       proc_like?(x) && x.arity == 1 && x.respond_to?(:>=) && x.respond_to?(:>>)
+       proc_like?(x) && 
+       x.arity == 1 && 
+       x.respond_to?(:>=) && 
+       x.respond_to?(:>>) && 
+       x.respond_to?(:^) && 
+       x.respond_to?(:/) && 
+       x.respond_to?(:%)
     end
     def proc_like?(x)
       x.respond_to?(:call) && x.respond_to?(:arity)
@@ -49,4 +55,6 @@ module Arrows
     end
   end
   ID = lift -> (x) { x }
+  Good = lift -> (x) { good x }
+  Evil = lift -> (x) { evil x }
 end
