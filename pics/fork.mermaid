@@ -1,0 +1,7 @@
+graph LR;
+  A[apple] --> B((compose))
+  B --> C[apple "->" pear];
+  B --> D[apple "->" kiwi];
+  C --> E{fork};
+  D --> E;
+  E --> F[pear, kiwi];

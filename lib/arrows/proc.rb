@@ -24,6 +24,11 @@ class Arrows::Proc < Proc
     Arrows.fork self, f
   end
 
+  # feedback (aka ArrowLoop) composition
+  def <=>(g) 
+    Arrows.feedback self, g
+  end
+
   # Returns a memoizing version of this proc
   def memoize
     cache = {}

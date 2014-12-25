@@ -37,6 +37,32 @@ x -> [y,z]
 ### Arrow Fork
 f ^ g produces a proc that takes in a Either, and if either is good, f is evaluated, if either is evil, g is evaluated
 
+### ArrowLoop
+step <=> chose produces a proc that cycles between step and chose until chose returns a good either. Then returns whatever was in the good either
+
+```ruby
+context '<=> feedback' do
+    let(:step) { Arrows.lift -> (arg_acc) { [arg_acc.first - 1, arg_acc.reduce(&:*)] } }
+    let(:chose) { Arrows.lift -> (arg_acc) { arg_acc.first < 1 ? Arrows.good(arg_acc.last) : Arrows.evil(arg_acc) } }
+    let(:factorial) { step <=> chose }
+    context '120' do
+      let(:one_twenty) { Arrows.lift(5) >> factorial }
+      subject { one_twenty.call }
+      specify { should eq 120 }
+    end
+    context '1' do
+      let(:one) { Arrows.lift(1) >> factorial }
+      subject { one.call }
+      specify { should eq 1 }
+    end
+    context '0' do
+      let(:zero) { Arrows.lift(0) >> factorial }
+      subject { zero.call }
+      specify { should eq 0 }
+    end
+  end
+```
+
 ## Memoization
 ```ruby
 @some_process = Arrows.lift -> (a) { a }

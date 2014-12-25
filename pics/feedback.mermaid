@@ -1,0 +1,7 @@
+graph LR;
+  A[apple] --> B((compose));
+  B --> C[apple, mango "->" cherry];
+  C --> X((feedback));
+  X --> D[cherry "->" Either pear, mango];
+  D --> C;
+  D --> F[pear];

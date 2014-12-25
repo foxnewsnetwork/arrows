@@ -7,4 +7,7 @@ class Arrows::Either
   def good?
     @good
   end
+  def evil?
+    not good?
+  end
 end

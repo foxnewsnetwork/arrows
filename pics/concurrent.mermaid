@@ -1,0 +1,5 @@
+graph LR;
+  A[apple, orange] --> X((compose));
+  X --> B{concurrent};
+  B --> C[apple "->" pear];
+  B --> D[orange "->" kiwi];

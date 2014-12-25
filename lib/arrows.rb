@@ -4,6 +4,17 @@ module Arrows
   require 'arrows/either'
   require 'arrows/proc'
   class << self
+    def feedback(merge, split)
+      Arrows::Proc.new do |args|
+        single = merge.call [args]
+        either = split.call single
+        while not either.good?
+          single = merge.call either.payload
+          either = split.call single
+        end
+        either.payload
+      end
+    end
     def fork(f,g)
       Arrows::Proc.new do |either|
         either.good? ? f[either.payload] : g[either.payload]
@@ -23,11 +34,11 @@ module Arrows
     def fmap(xs, f)
       Arrows::Proc.new { |args| xs[args].map { |x| f[x] }  }
     end
-    def good(x)
+    def good(x=nil)
       return x if x.respond_to?(:good?) && x.respond_to?(:payload)
       Arrows::Either.new true, x
     end
-    def evil(x)
+    def evil(x=nil)
       return x if x.respond_to?(:good?) && x.respond_to?(:payload)
       Arrows::Either.new false, x
     end 
