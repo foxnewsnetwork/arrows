@@ -18,6 +18,12 @@ x -> H -> z
 
 As in we pipe what F poops out into the mouth of G a la Human Centipede
 
+```ruby
+f = Arrows.lift -> (apple) { apple.to_orange }
+g = Arrows.lift -> (orange) { orange.to_kiwi }
+apple_to_kiwi = f >> g
+```
+![Regular >> composition](https://raw.githubusercontent.com/foxnewsnetwork/arrows/master/pics/compose.mermaid.png)
 
 ### Applicative composition
 Calls map (in Haskell, they generalize it to fmap) on the data passed in
@@ -28,14 +34,36 @@ x -> F -> y and [x]
 Returns
 [x] -> F -> [z]
 
+```ruby
+apples = Arrows.lift [apple, apple, apple]
+apple_to_kiwi = Arrows.lift -> (apple) { apple.to_kiwi }
+kiwis = apples >= apple_to_kiwi
+```
+![functor >= composition](https://raw.githubusercontent.com/foxnewsnetwork/arrows/master/pics/fmap.mermaid.png)
+
 ### Arrow fan out
 x -> y
 x -> z
 becomes
 x -> [y,z]
 
+```ruby
+apple_to_orange = Arrows.lift -> (apple) { apple.to_orange }
+apple_to_kiwi = Arrows.lift -> (apple) { apple.to_kiwi }
+orange_and_kiwi = Arrows.lift(apple) >> (apple_to_orange / apple_to_kiwi)
+```
+![fanout / composition](https://raw.githubusercontent.com/foxnewsnetwork/arrows/master/pics/fanout.mermaid.png)
+
 ### Arrow Fork
 f ^ g produces a proc that takes in a Either, and if either is good, f is evaluated, if either is evil, g is evaluated
+
+```ruby
+apple_to_orange = Arrows.lift -> (apple) { apple.to_orange }
+apple_to_kiwi = Arrows.lift -> (apple) { apple.to_kiwi }
+orange = Arrows.lift(apple) >> Arrows::Good >> (apple_to_orange ^ apple_to_kiwi)
+kiwi = Arrows.lift(apple) >> Arrows::Evil >> (apple_to_orange ^ apple_to_kiwi)
+```
+![fork / composition](https://raw.githubusercontent.com/foxnewsnetwork/arrows/master/pics/fork.mermaid.png)
 
 ### ArrowLoop
 step <=> chose produces a proc that cycles between step and chose until chose returns a good either. Then returns whatever was in the good either
@@ -62,6 +90,7 @@ context '<=> feedback' do
     end
   end
 ```
+![feedback / composition](https://raw.githubusercontent.com/foxnewsnetwork/arrows/master/pics/feedback.mermaid.png)
 
 ## Memoization
 ```ruby
