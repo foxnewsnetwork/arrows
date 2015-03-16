@@ -13,6 +13,23 @@ RSpec.describe Arrows::Proc do
     specify { should eq twenty_two.call }
   end
 
+  context 'polarize' do
+    let(:numbers) { Arrows.lift [-2,-1,0,1,2,3] }
+    let(:heaviside) { Arrows.polarize { |x| x > 0 } }
+    let(:zero) { Arrows.lift { |x| 0 } }
+    let(:four) { Arrows.lift { |x| 4 } }
+    let(:zero_or_four) { heaviside >> (zero ^ four) }
+    let(:actual) { numbers >= zero_or_four }
+    context "basics" do
+      subject { heaviside.call 2 }
+      specify { should be_good }
+    end
+    context "full-force" do
+      subject { actual.call }
+      specify { should eq [4,4,4,0,0,0] }
+    end
+  end
+
   context 'rescue_from' do
     let(:times2 ) { Arrows.lift -> (x) { x * 2 } }
     let(:plus1) { Arrows.lift -> (x) { x == 4 ? raise(StandardError, "error: #{x}") : (x + 1) } }

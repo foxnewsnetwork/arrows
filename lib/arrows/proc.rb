@@ -36,7 +36,7 @@ class Arrows::Proc < Proc
   end
 
   # rescues errors from procs
-  def rescue_from(error_klass=StandardError, &block)
+  def rescue_from(error_klass=StandardError)
     Arrows.lift -> (args) {
       begin
         self[args]
