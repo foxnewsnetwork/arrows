@@ -15,6 +15,12 @@ module Arrows
         either.payload
       end
     end
+    def good_fork(f)
+      fork f, ID
+    end
+    def evil_fork(g)
+      fork ID, g
+    end
     def fork(f,g)
       Arrows::Proc.new do |either|
         either.good? ? f[either.payload] : g[either.payload]
